@@ -127,6 +127,6 @@ action:
             data:
               notification_icon: "{{ icon }}"
               clickAction: 
-                action: "URI"
+                action: URI
                 title: "Otevřít panel Lovelace"
                 uri: "/dashboard-pocasi"
