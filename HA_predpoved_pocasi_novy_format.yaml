@@ -126,4 +126,6 @@ action:
               {% endif %}
             data:
               notification_icon: "{{ icon }}"
-              clickAction: "/lovelace/{{ lovelace_path }}"
+              clickAction: 
+                action: uri
+                uri: "/lovelace/{{ lovelace_path }}"
