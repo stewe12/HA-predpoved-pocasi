@@ -127,5 +127,6 @@ action:
             data:
               notification_icon: "{{ icon }}"
               clickAction: 
-                action: uri
-                uri: "/lovelace/{{ lovelace_path }}"
+                action: "URI"
+                title: "Otevřít panel Lovelace"
+                uri: "/lovelace/{{ lovelace_panel }}"
