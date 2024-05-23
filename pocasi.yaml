@@ -125,8 +125,17 @@ action:
                 'exceptional': 'výjimečné podmínky'
               } %}
               
+              {% set wind_direction_degrees = forecast[forecast_index].wind_bearing %}
+              
+              {% if wind_direction_degrees is defined %}
+                {% set wind_direction = ['severní', 'severoseverovýchodní', 'severovýchodní', 'východoseverovýchodní', 'východní', 'východojihovýchodní', 'jihovýchodní', 'jihojihovýchodní', 'jižní', 'jihojihozápadní', 'jihozápadní', 'západojihozápadní', 'západní', 'západozápadní', 'severozápadní', 'severnoseverozápadní'] %}
+                
+                {% set direction_index = ((wind_direction_degrees + 11.25) % 360) / 22.5 | int %}
+                {% set wind_direction_text = wind_direction[direction_index] %}
+              {% endif %}
+              
               {% for message in notify_message %}
-                {% if "condition" in message %}Počasí: {{ condition_translations.get(forecast[forecast_index].condition, forecast[forecast_index].condition).capitalize() }}{% endif %} {% if "temperature" in message %}Teplota: {{forecast[forecast_index].temperature}} // {{forecast[forecast_index].templow}} {{ state_attr(weather,'temperature_unit') }}{% endif %} {% if "precipitation" in message %}Srážky: {{forecast[forecast_index].precipitation}} {{ state_attr(weather,'precipitation_unit') }}{% endif %} {% if "wind" in message %}Rychlost větru: {{forecast[forecast_index].wind_speed}} {{ state_attr(weather,'wind_speed_unit') }} // Směr větru: {{forecast[forecast_index].wind_bearing}}{% endif %}
+                {% if "condition" in message %}Počasí: {{ condition_translations.get(forecast[forecast_index].condition, forecast[forecast_index].condition).capitalize() }}{% endif %} {% if "temperature" in message %}Teplota: {{forecast[forecast_index].temperature}} // {{forecast[forecast_index].templow}} {{ state_attr(weather,'temperature_unit') }}{% endif %} {% if "precipitation" in message %}Srážky: {{forecast[forecast_index].precipitation}} {{ state_attr(weather,'precipitation_unit') }}{% endif %} {% if "wind" in message %} Rychlost větru: {{forecast[forecast_index].wind_speed}} {{ state_attr(weather,'wind_speed_unit') }} // Směr větru: {{ wind_direction_text }}{% endif %}
               {% endfor %}
             data:
               notification_icon: "{{ icon }}"
