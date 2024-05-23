@@ -31,7 +31,7 @@ blueprint:
       default: "Předpověď počasí"
 
     notify_message:
-      name: Dnešní Upozornění Počasí
+      name: Upozornění Počasí
       description: >-
         Příklad, jak bude počasí zobrazeno. Budou použity jednotky nastavené ve vaší integraci počasí.
         
@@ -57,18 +57,16 @@ blueprint:
             - label: Vítr
               value: "wind"
  
-    tomorrow_message:
-      name: Zítra Upozornění Počasí
-      description: >-
-        Příklad, jak bude počasí zobrazeno. Budou použity jednotky nastavené ve vaší integraci počasí.
-        
-        Zítra: Deštivo, Teplota: 13.2 // 11.7 °C, Srážky: 2.5 mm
-      default: tomorrow
+    forecast_day:
+      name: Den předpovědi
+      description: Zda poslat dnešní nebo zítřejší předpověď počasí.
       selector:
         select:
           options:
-            - Ano
-            - Ne
+            - label: Dnes
+              value: "today"
+            - label: Zítra
+              value: "tomorrow"
 
 variables:
   notify_device: !input notify_device
@@ -77,7 +75,8 @@ variables:
   time: !input time
   device_id: !input notify_device
   notify_message: !input notify_message
-  tomorrow_message: !input tomorrow_message
+  forecast_day: !input forecast_day
+  lovelace_path: !input lovelace_path
   
 trigger:
   platform: time
@@ -100,15 +99,4 @@ action:
   - repeat:
       for_each: !input notify_device
       sequence: 
-        - service: "notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}"
-          data:
-            title: "{{ notification_title }}"
-            message: >-
-              {% set weather = weather_entity %}
-              {% for message in notify_message %}
-                {% if "condition" in message %}Podmínka: {{ (forecast[0].condition).capitalize() }}{% endif %}{% if "temperature" in message %}Teplota: {{forecast[0].temperature}} // {{forecast[0].templow}} {{ state_attr(weather,'temperature_unit') }}{% endif %}{% if "precipitation" in message %}Srážky: {{forecast[0].precipitation}} {{ state_attr(weather,'precipitation_unit') }}{% endif %}{% if "wind" in message %}Rychlost větru: {{forecast[0].wind_speed}} {{ state_attr(weather,'wind_speed_unit') }} // Směr větru: {{forecast[0].wind_bearing}}{% endif %}
-              {% endfor %}
-      
-              {% if tomorrow_message == 'Ano' %}Zítra: {{ (forecast[1].condition).capitalize() }}, Teplota: {{forecast[1].temperature}} // {{forecast[1].templow}} {{ state_attr(weather,'temperature_unit') }}, Srážky: {{forecast[1].precipitation}} {{ state_attr(weather,'precipitation_unit') }}
-              {% endif %}
-            notification_icon: "{{ icon }}"
+        - service: "notify.mobile_app_{{ device
