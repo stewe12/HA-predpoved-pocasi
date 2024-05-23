@@ -129,4 +129,4 @@ action:
               clickAction: 
                 action: "URI"
                 title: "Otevřít panel Lovelace"
-                uri: "/{{ lovelace_panel }}"
+                uri: "/dashboard-pocasi"
