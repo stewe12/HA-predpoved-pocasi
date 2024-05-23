@@ -76,7 +76,6 @@ variables:
   device_id: !input notify_device
   notify_message: !input notify_message
   forecast_day: !input forecast_day
-  lovelace_path: !input lovelace_path
   
 trigger:
   platform: time
