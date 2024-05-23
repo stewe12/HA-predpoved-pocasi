@@ -78,7 +78,6 @@ variables:
   device_id: !input notify_device
   notify_message: !input notify_message
   tomorrow_message: !input tomorrow_message
-  lovelace_path: !input lovelace_path
   
 trigger:
   platform: time
