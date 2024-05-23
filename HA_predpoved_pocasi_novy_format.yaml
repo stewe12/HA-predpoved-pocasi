@@ -74,12 +74,6 @@ blueprint:
             - label: Ne - neposílat informace o zítřejším počasí
               value: "noTomorrow"
 
-    lovelace_path:
-      name: Lovelace panel
-      description: URL cesty k panelu Lovelace, který se má otevřít po kliknutí na upozornění.
-      selector:
-        text:
-
 variables:
   notify_device: !input notify_device
   weather_entity: !input weather_entity
@@ -125,7 +119,3 @@ action:
               {% if tomorrow_message == 'tomorrow' %}Zítra: {{ (forecast[1].condition).capitalize() }}, Teplota: {{forecast[1].temperature}} // {{forecast[1].templow}} {{ state_attr(weather,'temperature_unit') }}, Srážky: {{forecast[1].precipitation}} {{ state_attr(weather,'precipitation_unit') }}
               {% endif %}
             notification_icon: "{{ icon }}"
-            clickAction: 
-              action: URI
-              title: "Otevřít panel Lovelace"
-              uri: "/dashboard-pocasi"
