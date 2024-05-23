@@ -98,17 +98,23 @@ action:
   - repeat:
       for_each: !input notify_device
       sequence: 
-          - service: "notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}"
+        - service: "notify.mobile_app_{{ device_attr(repeat.item, 'name') | slugify }}"
+          data:
+            title: "{{ notification_title }}"
+            message: >-
+              {% set weather = weather_entity %}
+              {% if forecast_day == 'tomorrow' %}
+                {% set forecast_index = 1 %}
+              {% else %}
+                {% set forecast_index = 0 %}
+              {% endif %}
+              {% for message in notify_message %}
+                {% if "condition" in message %}Počasí: {{ (forecast[forecast_index].condition).capitalize() }}{% endif %}
+                {% if "temperature" in message %}Teplota: {{forecast[forecast_index].temperature}} // {{forecast[forecast_index].templow}} {{ state_attr(weather,'temperature_unit') }}{% endif %}
+                {% if "precipitation" in message %}Srážky: {{forecast[forecast_index].precipitation}} {{ state_attr(weather,'precipitation_unit') }}{% endif %}
+                {% if "wind" in message %}Rychlost větru: {{forecast[forecast_index].wind_speed}} {{ state_attr(weather,'wind_speed_unit') }} // Směr větru: {{forecast[forecast_index].wind_bearing}}{% endif %}
+              {% endfor %}
             data:
-              title: "{{ notification_title }}"
-              message: >-
-                {% set weather = weather_entity %}
-                {% for message in notify_message %}
-                  {% if "condition" in message %}Podmínka: {{ (forecast[0].condition).capitalize() }}{% endif %}{% if "temperature" in message %}Teplota: {{forecast[0].temperature}} // {{forecast[0].templow}} {{ state_attr(weather,'temperature_unit') }}{% endif %}{% if "precipitation" in message %}Srážky: {{forecast[0].precipitation}} {{ state_attr(weather,'precipitation_unit') }}{% endif %}{% if "wind" in message %}Rychlost větru: {{forecast[0].wind_speed}} {{ state_attr(weather,'wind_speed_unit') }} // Směr větru: {{forecast[0].wind_bearing}}{% endif %}
-                {% endfor %}
-                {% if forecast_day == 'tomorrow' %}{% set forecast_index = 1 %}{% else %}{% set forecast_index = 0 %}{% endif %}
-                {% for message in notify_message %}
-                  {% if "condition" in message %}Podmínka: {{ (forecast[forecast_index].condition).capitalize() }}{% endif %}{% if "temperature" in message %}Teplota: {{forecast[forecast_index].temperature}} // {{forecast[forecast_index].templow}} {{ state_attr(weather,'temperature_unit') }}{% endif %}{% if "precipitation" in message %}Srážky: {{forecast[forecast_index].precipitation}} {{ state_attr(weather,'precipitation_unit') }}{% endif %}{% if "wind" in message %}Rychlost větru: {{forecast[forecast_index].wind_speed}} {{ state_attr(weather,'wind_speed_unit') }} // Směr větru: {{forecast[forecast_index].wind_bearing}}{% endif %}
-                {% endfor %}
-              data:
-                notification_icon: "{{ icon }}"
+              notification_icon: "{{ icon }}"
+
+
