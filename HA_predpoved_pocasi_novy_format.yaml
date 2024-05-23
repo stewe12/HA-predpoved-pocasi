@@ -1,80 +1,77 @@
 blueprint:
-  name: Předpověď počasí v novém formátu
-  description: Odešle notifikaci s předpovědí počasí na zadaná zařízení.
+  name: Upozornění na předpověď počasí
+  description: Odeslat přizpůsobitelné upozornění na dnešní a zítřejší předpověď počasí.
   domain: automation
   input:
     weather_entity:
-      name: Entita počasí
-      description: Integrace počasí, kterou používáš.
+      name: Entita Počasí
+      description: Integrace počasí, kterou používáte.
       selector:
         entity:
           filter:
             - domain: weather
             
     notify_device:
-      name: Kam odeslat notifikaci
-      description: Zařízení musí mít nainstalovanou aplikaci Home Assistant
+      name: Zařízení k upozornění
+      description: Zařízení musí mít oficiální aplikaci Home Assistant, aby mohlo přijímat upozornění
       selector:
         device:
           multiple: true
           integration: mobile_app
           
     time:
-      name: Čas odeslání
-      description: V kolik hodin se má notifikace odeslat.
+      name: Čas spuštění
+      description: Čas spuštění automatizace a odeslání upozornění.
       selector:
         time:
 
     notification_title:
-      name: Název notifikace (Volitelně)
-      description: Toto bude nadpis notifikace.
+      name: Název upozornění (Volitelné)
+      description: Název upozornění
       default: "Předpověď počasí"
 
-     
     notify_message:
-      name: Today's Weather Notification
+      name: Dnešní Upozornění Počasí
       description: >-
-        An example of how the weather will be displayed. The units configured in your weather integration will be used.
+        Příklad, jak bude počasí zobrazeno. Budou použity jednotky nastavené ve vaší integraci počasí.
         
+        Podmínka: Prší
         
-        Condition: Pouring
+        Teplota: 8.4 // 4.0 °C
         
-        Temp: 8.4 // 4.0 °C
+        Srážky: 8.6 mm
         
-        Precipitation: 8.6 mm
-        
-        Wind Speed: 24.1 km/h // Wind Bearing: 273
+        Rychlost větru: 24.1 km/h // Směr větru: 273
       default: condition
       selector:
         select:
           mode: list
           multiple: true
           options:
-            - label: Weather condition
+            - label: Stav počasí
               value: "condition"
-            - label: Temperature
+            - label: Teplota
               value: "temperature"
-            - label: Precipitation
+            - label: Srážky
               value: "precipitation"
-            - label: Wind
+            - label: Vítr
               value: "wind"
  
-#Input for whether tomorrow's forecast is appended to the notification message. If no is selected, this is not added. 
+# Vstup pro to, zda je předpověď na zítřek přidána k zprávě o upozornění. Pokud je zvoleno "ne", není přidána.
     tomorrow_message:
-      name: Tomorrow's Weather Notification
+      name: Zítřejší Upozornění Počasí
       description: >-
-        An example of how the weather will be displayed. The units configured in your weather integration will be used.
+        Příklad, jak bude počasí zobrazeno. Budou použity jednotky nastavené ve vaší integraci počasí.
         
-        
-        Tomorrow: Rainy, Temp: 13.2 // 11.7 °C, Precipitation: 2.5 mm
+        Zítra: Deštivo, Teplota: 13.2 // 11.7 °C, Srážky: 2.5 mm
       default: tomorrow
       selector:
         select:
           mode: dropdown
           options:
-            - label: Yes - send info for tomorrow's weather
+            - label: Ano - poslat informace o zítřejším počasí
               value: "tomorrow"
-            - label: No - don't send info for tomorrow's weather
+            - label: Ne - neposílat informace o zítřejším počasí
               value: "noTomorrow"
               
 variables:
@@ -86,13 +83,12 @@ variables:
   notify_message: !input notify_message
   tomorrow_message: !input tomorrow_message
   
-    
 trigger:
   platform: time
   at: !input time
 
 action:
-#Calls the forecast service.
+# Volá službu předpovědi.
   - service: weather.get_forecasts
     data:
       type: daily
@@ -103,10 +99,10 @@ action:
   - variables:
       weather_entity: !input weather_entity
       forecast: "{{ daily[weather_entity].forecast }}"
-      icon: >- #Sets the notification icon (on android) based on today's forecast condition.
+      icon: >- # Nastaví ikonu upozornění (na androidu) na základě dnešní předpovědi.
         {% set cond_now = forecast[0].condition %}{% if cond_now == 'cloudy' %}mdi:clouds{% elif cond_now == 'fog' %}mdi:weather-fog{% elif cond_now == 'hail' %}mdi:weather-hail{% elif cond_now == 'lightning' %}mdi:weather-lightning{% elif cond_now == 'lightning-rainy' %}mdi:weather-lightning-rainy{% elif cond_now == 'partlycloudy' %}mdi:weather-partly-cloudy{% elif cond_now == 'pouring' %}mdi:weather-pouring{% elif cond_now == 'rainy' %}mdi:weather-rainy{% elif cond_now == 'snowy' %}mdi:weather-snowy{% elif cond_now == 'snowy-rainy' %}mdi:weather-snowy-rainy{% elif cond_now == 'sunny' %}mdi:weather-sunny{% elif cond_now == 'windy' %}mdi:weather-windy{% elif cond_now == 'windy-variant' %}mdi:weather-windy-variant{% elif cond_now == 'exceptional' %}mdi:cloud-alert{% else %}mdi:sun-thermometer{% endif %}
  
-#Send the app notification. Repeats for each device.
+# Odeslání upozornění do aplikace. Opakuje se pro každé zařízení.
   - repeat:
       for_each: !input notify_device
       sequence: 
@@ -116,8 +112,10 @@ action:
             message: >-
               {% set weather = weather_entity %}
               {% for message in notify_message %}
-                {% if "condition" in message %}Condition: {{ (forecast[1].condition).capitalize() }}{% endif %}{% if "temperature" in message %}Temp: {{forecast[1].temperature}} // {{forecast[1].templow}} {{ state_attr(weather,'temperature_unit') }}{% endif %}{% if "precipitation" in message %}Precipitation: {{forecast[1].precipitation}} {{ state_attr(weather,'precipitation_unit') }}{% endif %}{% if "wind" in message %}Wind Speed: {{forecast[1].wind_speed}} {{ state_attr(weather,'wind_speed_unit') }} // Wind Bearing: {{forecast[1].wind_bearing}}{% endif %}
+                {% if "condition" in message %}Podmínka: {{ (forecast[0].condition).capitalize() }}{% endif %}{% if "temperature" in message %}Teplota: {{forecast[0].temperature}} // {{forecast[0].templow}} {{ state_attr(weather,'temperature_unit') }}{% endif %}{% if "precipitation" in message %}Srážky: {{forecast[0].precipitation}} {{ state_attr(weather,'precipitation_unit') }}{% endif %}{% if "wind" in message %}Rychlost větru: {{forecast[0].wind_speed}} {{ state_attr(weather,'wind_speed_unit') }} // Směr větru: {{forecast[0].wind_bearing}}{% endif %}
               {% endfor %}
       
+              {% if tomorrow_message == 'tomorrow' %}Zítra: {{ (forecast[1].condition).capitalize() }}, Teplota: {{forecast[1].temperature}} // {{forecast[1].templow}} {{ state_attr(weather,'temperature_unit') }}, Srážky: {{forecast[1].precipitation}} {{ state_attr(weather,'precipitation_unit') }}
+              {% endif %}
             data:
-              notification_icon: "{{ icon }}"
+              notification_icon: "{{ icon }}
