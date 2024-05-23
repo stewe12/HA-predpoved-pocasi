@@ -110,4 +110,5 @@ action:
                 {% for message in notify_message %}
                   {% if "condition" in message %}Podmínka: {{ (forecast[forecast_index].condition).capitalize() }}{% endif %}{% if "temperature" in message %}Teplota: {{forecast[forecast_index].temperature}} // {{forecast[forecast_index].templow}} {{ state_attr(weather,'temperature_unit') }}{% endif %}{% if "precipitation" in message %}Srážky: {{forecast[forecast_index].precipitation}} {{ state_attr(weather,'precipitation_unit') }}{% endif %}{% if "wind" in message %}Rychlost větru: {{forecast[forecast_index].wind_speed}} {{ state_attr(weather,'wind_speed_unit') }} // Směr větru: {{forecast[forecast_index].wind_bearing}}{% endif %}
                 {% endfor %}
-              notification_icon: "{{ icon }}"
+              data:
+                notification_icon: "{{ icon }}"
