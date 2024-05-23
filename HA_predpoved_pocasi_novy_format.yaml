@@ -57,9 +57,8 @@ blueprint:
             - label: Vítr
               value: "wind"
  
-# Vstup pro to, zda je předpověď na zítřek přidána k zprávě o upozornění. Pokud je zvoleno "ne", není přidána.
     tomorrow_message:
-      name: Zítřejší Upozornění Počasí
+      name: Zítra Upozornění Počasí
       description: >-
         Příklad, jak bude počasí zobrazeno. Budou použity jednotky nastavené ve vaší integraci počasí.
         
@@ -67,12 +66,9 @@ blueprint:
       default: tomorrow
       selector:
         select:
-          mode: dropdown
           options:
-            - label: Ano - poslat informace o zítřejším počasí
-              value: "tomorrow"
-            - label: Ne - neposílat informace o zítřejším počasí
-              value: "noTomorrow"
+            - Ano
+            - Ne
 
 variables:
   notify_device: !input notify_device
@@ -89,7 +85,6 @@ trigger:
   at: !input time
 
 action:
-# Volá službu předpovědi.
   - service: weather.get_forecasts
     data:
       type: daily
@@ -100,10 +95,9 @@ action:
   - variables:
       weather_entity: !input weather_entity
       forecast: "{{ daily[weather_entity].forecast }}"
-      icon: >- # Nastaví ikonu upozornění (na androidu) na základě dnešní předpovědi.
+      icon: >-
         {% set cond_now = forecast[0].condition %}{% if cond_now == 'cloudy' %}mdi:clouds{% elif cond_now == 'fog' %}mdi:weather-fog{% elif cond_now == 'hail' %}mdi:weather-hail{% elif cond_now == 'lightning' %}mdi:weather-lightning{% elif cond_now == 'lightning-rainy' %}mdi:weather-lightning-rainy{% elif cond_now == 'partlycloudy' %}mdi:weather-partly-cloudy{% elif cond_now == 'pouring' %}mdi:weather-pouring{% elif cond_now == 'rainy' %}mdi:weather-rainy{% elif cond_now == 'snowy' %}mdi:weather-snowy{% elif cond_now == 'snowy-rainy' %}mdi:weather-snowy-rainy{% elif cond_now == 'sunny' %}mdi:weather-sunny{% elif cond_now == 'windy' %}mdi:weather-windy{% elif cond_now == 'windy-variant' %}mdi:weather-windy-variant{% elif cond_now == 'exceptional' %}mdi:cloud-alert{% else %}mdi:sun-thermometer{% endif %}
  
-# Odeslání upozornění do aplikace. Opakuje se pro každé zařízení.
   - repeat:
       for_each: !input notify_device
       sequence: 
@@ -116,6 +110,6 @@ action:
                 {% if "condition" in message %}Podmínka: {{ (forecast[0].condition).capitalize() }}{% endif %}{% if "temperature" in message %}Teplota: {{forecast[0].temperature}} // {{forecast[0].templow}} {{ state_attr(weather,'temperature_unit') }}{% endif %}{% if "precipitation" in message %}Srážky: {{forecast[0].precipitation}} {{ state_attr(weather,'precipitation_unit') }}{% endif %}{% if "wind" in message %}Rychlost větru: {{forecast[0].wind_speed}} {{ state_attr(weather,'wind_speed_unit') }} // Směr větru: {{forecast[0].wind_bearing}}{% endif %}
               {% endfor %}
       
-              {% if tomorrow_message == 'tomorrow' %}Zítra: {{ (forecast[1].condition).capitalize() }}, Teplota: {{forecast[1].temperature}} // {{forecast[1].templow}} {{ state_attr(weather,'temperature_unit') }}, Srážky: {{forecast[1].precipitation}} {{ state_attr(weather,'precipitation_unit') }}
+              {% if tomorrow_message == 'Ano' %}Zítra: {{ (forecast[1].condition).capitalize() }}, Teplota: {{forecast[1].temperature}} // {{forecast[1].templow}} {{ state_attr(weather,'temperature_unit') }}, Srážky: {{forecast[1].precipitation}} {{ state_attr(weather,'precipitation_unit') }}
               {% endif %}
             notification_icon: "{{ icon }}"
