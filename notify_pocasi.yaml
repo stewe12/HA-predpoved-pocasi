@@ -12,10 +12,9 @@ blueprint:
 
     notify_target:
       name: Cílová služba oznámení
-      description: Vyberte službu pro odeslání oznámení (např. notify.upozorneni).
+      description: Vyberte službu pro odeslání oznámení.
       selector:
-        service:
-          domain: notify
+        target:
 
     time:
       name: Čas spuštění
@@ -108,7 +107,8 @@ action:
         {% else %}mdi:sun-thermometer
         {% endif %}
 
-  - service: !input notify_target
+  - service: notify.notify
+    target: !input notify_target
     data:
       title: "{{ notification_title }}"
       message: >-
