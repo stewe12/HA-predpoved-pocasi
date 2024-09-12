@@ -11,12 +11,13 @@ blueprint:
           filter:
             - domain: weather
             
-    notify_service:
+    notify_target:
       name: Cílová služba oznámení
-      description: Služba pro odeslání oznámení (např. notify.upozorneni).
+      description: Vyberte službu oznámení, například notify.upozorneni.
       selector:
-        service:
-          domain: notify
+        target:
+          entity:
+            domain: notify
 
     time:
       name: Čas spuštění
@@ -71,7 +72,7 @@ variables:
   weather_entity: !input weather_entity
   notification_title: !input notification_title
   time: !input time
-  notify_service: !input notify_service
+  notify_target: !input notify_target
   notify_message: !input notify_message
   forecast_day: !input forecast_day
   
@@ -109,7 +110,7 @@ action:
         {% else %}mdi:sun-thermometer
         {% endif %}
  
-  - service: !input notify_service
+  - service: !input notify_target
     data:
       title: "{{ notification_title }}"
       message: >-
