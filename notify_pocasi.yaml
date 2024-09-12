@@ -8,16 +8,14 @@ blueprint:
       description: Integrace počasí, kterou používáte.
       selector:
         entity:
-          filter:
-            - domain: weather
+          domain: weather
 
     notify_target:
-      name: Cílové oznámení
+      name: Cílová služba oznámení
       description: Vyberte službu pro odeslání oznámení (např. notify.upozorneni).
       selector:
-        target:
-          entity:
-            domain: notify
+        service:
+          domain: notify
 
     time:
       name: Čas spuštění
@@ -59,7 +57,7 @@ blueprint:
 
     forecast_day:
       name: Den předpovědi
-      description: Zda poslat dnešní nebo zířejší předpověď počasí.
+      description: Zda poslat dnešní nebo zítřejší předpověď počasí.
       selector:
         select:
           options:
@@ -110,8 +108,7 @@ action:
         {% else %}mdi:sun-thermometer
         {% endif %}
 
-  - service: notify.notify
-    target: !input notify_target
+  - service: !input notify_target
     data:
       title: "{{ notification_title }}"
       message: >-
