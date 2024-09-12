@@ -10,10 +10,10 @@ blueprint:
         entity:
           filter:
             - domain: weather
-            
+
     notify_target:
-      name: Cílová služba oznámení
-      description: Vyberte službu oznámení, například notify.upozorneni.
+      name: Cílové oznámení
+      description: Vyberte službu pro odeslání oznámení (např. notify.upozorneni).
       selector:
         target:
           entity:
@@ -56,10 +56,10 @@ blueprint:
               value: "precipitation"
             - label: Vítr
               value: "wind"
- 
+
     forecast_day:
       name: Den předpovědi
-      description: Zda poslat dnešní nebo zítřejší předpověď počasí.
+      description: Zda poslat dnešní nebo zířejší předpověď počasí.
       selector:
         select:
           options:
@@ -75,7 +75,7 @@ variables:
   notify_target: !input notify_target
   notify_message: !input notify_message
   forecast_day: !input forecast_day
-  
+
 trigger:
   platform: time
   at: !input time
@@ -87,7 +87,7 @@ action:
     target:
       entity_id: !input weather_entity
     response_variable: daily
-    
+
   - variables:
       weather_entity: !input weather_entity
       forecast: "{{ daily[weather_entity].forecast }}"
@@ -109,8 +109,9 @@ action:
         {% elif cond_now == 'exceptional' %}mdi:cloud-alert
         {% else %}mdi:sun-thermometer
         {% endif %}
- 
-  - service: !input notify_target
+
+  - service: notify.notify
+    target: !input notify_target
     data:
       title: "{{ notification_title }}"
       message: >-
